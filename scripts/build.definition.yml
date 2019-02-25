@@ -1,0 +1,31 @@
+steps:
+
+- script: dotnet restore --configfile nuget/NuGet.Config
+  displayName: Restore Dependencies
+
+- script: dotnet build -c Release
+  displayName: Build Projects
+
+- script: dotnet publish src/ProjectPS.ServicePS.WebApplication -c Release --no-restore -o ../../buildartifacts
+  displayName: Package Application
+
+- task: ArchiveFiles@2
+  displayName: Archive BuildArtifacts
+  inputs:
+    rootFolderOrFile: buildartifacts
+    includeRootFolder: false
+    archiveFile: $(Build.ArtifactStagingDirectory)/application.zip
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifact - Application  
+  inputs:
+    PathtoPublish: $(Build.ArtifactStagingDirectory)
+    ArtifactName: Executable
+    publishLocation: Container
+
+- task: PublishBuildArtifacts@1
+  displayName: Publish Artifact - Scripts  
+  inputs:
+    PathtoPublish: scripts
+    ArtifactName: Scripts
+    publishLocation: Container
